@@ -163,7 +163,12 @@ def main():
     parser = argparse.ArgumentParser(
         description="Interactive photobleaching step counter (M / D / D+) with TV filtering."
     )
-    parser.add_argument("input_csv", help="Input ROI intensity CSV exported from ImageJ / Fiji")
+    parser.add_argument(
+        "input_csv",
+        nargs="?",
+        default=str(Path(__file__).resolve().parent.parent / "examples" / "Frame1_IntensityTraces_film_3.csv"),
+        help="Input ROI intensity CSV exported from ImageJ / Fiji (default: the example file)",
+    )
     parser.add_argument(
         "--out",
         default="roi_classification.csv",
