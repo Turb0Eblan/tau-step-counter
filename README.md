@@ -10,7 +10,7 @@ It runs entirely on your computer. Nothing is uploaded.
 
 ## Why
 
-I built this together with my friend, biologist [Kudaybergen Bissenbayev](https://www.linkedin.com/in/kudaybergenbissenbayev/), for his work on the protein **Tau**. Tau was tagged with sfGFP, imaged one molecule at a time at 100 pM (50 ms frames), and each bright spot was turned into an ROI in Fiji.
+I built this together with my friend, biologist [Kudaybergen Bissenbayev](https://www.linkedin.com/in/kudaybergenbissenbayev/), for research on the protein **Tau**. Tau was tagged with sfGFP, imaged one molecule at a time at 100 pM (50 ms frames), and each bright spot was turned into an ROI in Fiji.
 
 A GFP molecule doesn't fade gradually. It switches off in one sudden step. So if a spot's brightness drops in one step, the spot held one Tau molecule. Two steps means two molecules, a dimer, and more steps means a larger oligomer. Counting steps over a few hundred spots tells you how much Tau is clumping together.
 
