@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tau Step Counter</title>
+<meta name="description" content="Count photobleaching steps in single-molecule intensity traces from ImageJ / Fiji. Runs in the browser, data never leaves your computer.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='.5' y='1.5' width='15' height='13' rx='1.5' fill='%23fff' stroke='%230831d9'/%3E%3Cpath d='M2 5h4v3h3v3h5' fill='none' stroke='%23d40000' stroke-width='1.6'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/luna.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<!-- icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g-blue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb2ff"/><stop offset="1" stop-color="#1a54d6"/></linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fe08f"/><stop offset="1" stop-color="#1f8f1f"/></linearGradient>
+    <linearGradient id="g-folder" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a6"/><stop offset="1" stop-color="#e8b23a"/></linearGradient>
+    <linearGradient id="g-paper" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#dfe6f1"/></linearGradient>
+  </defs>
+  <symbol id="i-app" viewBox="0 0 32 32">
+    <rect x="2" y="4" width="28" height="24" rx="2" fill="#fff" stroke="#0831d9" stroke-width="1.5"/>
+    <rect x="2" y="4" width="28" height="5" rx="2" fill="url(#g-blue)"/>
+    <path d="M5 13h7v5h6v5h9" fill="none" stroke="#d40000" stroke-width="2.2"/>
+    <path d="M5 12l2 2 2-3 2 3 1-1M13 18l2-1 2 2M19 23l2-1 2 1 2-1" fill="none" stroke="#7f9db9" stroke-width="1"/>
+  </symbol>
+  <symbol id="i-open" viewBox="0 0 24 24">
+    <path d="M2 6h7l2 2h9v11H2z" fill="url(#g-folder)" stroke="#a87a12"/>
+    <path d="M2 19l3-8h17l-2 8z" fill="#ffd862" stroke="#a87a12"/>
+  </symbol>
+  <symbol id="i-sample" viewBox="0 0 24 24">
+    <path d="M5 2h10l4 4v16H5z" fill="url(#g-paper)" stroke="#6b7c99"/>
+    <path d="M15 2v4h4" fill="#cfd8e6" stroke="#6b7c99"/>
+    <path d="M7 11h3v3h3v3h4" fill="none" stroke="#d40000" stroke-width="1.6"/>
+  </symbol>
+  <symbol id="i-save" viewBox="0 0 24 24">
+    <rect x="3" y="3" width="18" height="18" rx="1.5" fill="url(#g-blue)" stroke="#173f99"/>
+    <rect x="7" y="3" width="10" height="7" fill="#fff" stroke="#173f99"/>
+    <rect x="13" y="4.5" width="2" height="4" fill="#173f99"/>
+    <rect x="6" y="13" width="12" height="8" fill="#e8ecf4" stroke="#173f99"/>
+  </symbol>
+  <symbol id="i-prev" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="url(#g-green)" stroke="#1b6d1b"/>
+    <path d="M14 6l-6 6 6 6" fill="none" stroke="#fff" stroke-width="3"/>
+  </symbol>
+  <symbol id="i-next" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="url(#g-green)" stroke="#1b6d1b"/>
+    <path d="M10 6l6 6-6 6" fill="none" stroke="#fff" stroke-width="3"/>
+  </symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24">
+    <path d="M9 5L3 10l6 5v-3h6a3.5 3.5 0 010 7h-3v3h3a6.5 6.5 0 000-13H9z" fill="#2f6be0" stroke="#173f99" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-options" viewBox="0 0 24 24">
+    <rect x="3" y="4" width="18" height="16" rx="1" fill="#f3f1e6" stroke="#7a7666"/>
+    <path d="M6 9h12M6 15h12" stroke="#7a7666" stroke-width="1.5"/>
+    <rect x="9" y="7" width="3" height="4" fill="url(#g-blue)" stroke="#173f99"/>
+    <rect x="13" y="13" width="3" height="4" fill="url(#g-blue)" stroke="#173f99"/>
+  </symbol>
+  <symbol id="i-help" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="url(#g-blue)" stroke="#173f99"/>
+    <path d="M9 9.5a3 3 0 115 2.2c-1.2.8-2 1.3-2 2.8" fill="none" stroke="#fff" stroke-width="2.2"/>
+    <circle cx="12" cy="18" r="1.4" fill="#fff"/>
+  </symbol>
+  <symbol id="i-info" viewBox="0 0 32 32">
+    <circle cx="16" cy="16" r="14" fill="url(#g-blue)" stroke="#173f99"/>
+    <rect x="14" y="13" width="4" height="11" fill="#fff"/><circle cx="16" cy="8.5" r="2.3" fill="#fff"/>
+  </symbol>
+  <symbol id="i-warn" viewBox="0 0 32 32">
+    <path d="M16 3L30 28H2z" fill="#ffd733" stroke="#a37a00" stroke-linejoin="round"/>
+    <rect x="14.5" y="11" width="3" height="9" fill="#000"/><circle cx="16" cy="24" r="1.8"/>
+  </symbol>
+  <symbol id="i-error" viewBox="0 0 32 32">
+    <circle cx="16" cy="16" r="14" fill="#e3301b" stroke="#8c1407"/>
+    <path d="M10 10l12 12M22 10L10 22" stroke="#fff" stroke-width="3.2"/>
+  </symbol>
+  <symbol id="i-github" viewBox="0 0 24 24">
+    <rect x="3" y="2" width="18" height="20" rx="1" fill="url(#g-paper)" stroke="#6b7c99"/>
+    <path d="M6 7h12M6 10h12M6 13h9M6 16h11" stroke="#7f9db9"/>
+  </symbol>
+  <symbol id="i-flag" viewBox="0 0 20 20">
+    <circle cx="10" cy="10" r="8.5" fill="#fff" stroke="#1c6b1c"/>
+    <path d="M4 7h4v3h4v3h4" fill="none" stroke="#d40000" stroke-width="2"/>
+  </symbol>
+</svg>
+
+<div class="desktop" id="desktop">
+  <div class="desktop-icons">
+    <button class="desktop-icon" data-action="restore-main"><svg><use href="#i-app"/></svg><span>Tau Step Counter</span></button>
+    <button class="desktop-icon" data-action="sample"><svg><use href="#i-sample"/></svg><span>Sample film 3.csv</span></button>
+    <button class="desktop-icon" data-action="readme"><svg><use href="#i-github"/></svg><span>Readme</span></button>
+  </div>
+
+  <!-- ===== main window ===== -->
+  <section class="window main-window" id="main-window" data-title="Tau Step Counter">
+    <div class="title-bar">
+      <svg class="icon"><use href="#i-app"/></svg>
+      <div class="title-text" id="main-title">Tau Step Counter</div>
+      <div class="title-buttons">
+        <button class="min" data-action="minimize" aria-label="Minimize"></button>
+        <button class="max" data-action="maximize" aria-label="Maximize"></button>
+        <button class="close" data-action="minimize" aria-label="Close"></button>
+      </div>
+    </div>
+    <div class="window-body">
+      <nav class="menu-bar">
+        <div class="menu">
+          <button><u>F</u>ile</button>
+          <div class="menu-items">
+            <button data-action="open">Open traces CSV...<kbd>Ctrl+O</kbd></button>
+            <button data-action="sample">Open sample data</button>
+            <button data-action="import" data-needs-data>Import labels...</button>
+            <hr>
+            <button data-action="export" data-needs-data>Export labels<kbd>Ctrl+S</kbd></button>
+            <hr>
+            <button data-action="reset" data-needs-data>Clear all labels...</button>
+          </div>
+        </div>
+        <div class="menu">
+          <button><u>E</u>dit</button>
+          <div class="menu-items">
+            <button data-action="undo" data-needs-data>Undo last label<kbd>Ctrl+Z</kbd></button>
+            <button data-action="next-unlabeled" data-needs-data>Go to next unlabeled<kbd>N</kbd></button>
+          </div>
+        </div>
+        <div class="menu">
+          <button><u>V</u>iew</button>
+          <div class="menu-items">
+            <button data-action="toggle-raw" data-needs-data>Show raw trace<kbd>R</kbd></button>
+            <button data-action="zoom-reset" data-needs-data>Reset zoom<kbd>Z</kbd></button>
+            <hr>
+            <button data-action="options">Filter options...</button>
+          </div>
+        </div>
+        <div class="menu">
+          <button><u>H</u>elp</button>
+          <div class="menu-items">
+            <button data-action="shortcuts">Keyboard shortcuts<kbd>F1</kbd></button>
+            <button data-action="readme">Project page</button>
+            <hr>
+            <button data-action="about">About Tau Step Counter</button>
+          </div>
+        </div>
+      </nav>
+
+      <div class="toolbar">
+        <button class="tool" data-action="open"><svg><use href="#i-open"/></svg>Open</button>
+        <button class="tool" data-action="export" data-needs-data><svg><use href="#i-save"/></svg>Export</button>
+        <span class="tool-sep"></span>
+        <button class="tool" data-action="prev" data-needs-data><svg><use href="#i-prev"/></svg>Back</button>
+        <button class="tool" data-action="next" data-needs-data><svg><use href="#i-next"/></svg>Forward</button>
+        <button class="tool" data-action="undo" data-needs-data><svg><use href="#i-undo"/></svg>Undo</button>
+        <span class="tool-sep"></span>
+        <button class="tool" data-action="options"><svg><use href="#i-options"/></svg>Options</button>
+        <button class="tool" data-action="shortcuts"><svg><use href="#i-help"/></svg>Help</button>
+      </div>
+
+      <div class="workspace">
+        <aside class="side">
+          <div class="listview sunken" id="roi-list">
+            <table>
+              <colgroup><col style="width:56%"><col style="width:44%"></colgroup>
+              <thead><tr><th>ROI</th><th>Label</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <fieldset class="summary">
+            <legend>Summary</legend>
+            <div id="summary-bars"></div>
+            <div class="progress" title="Labeled ROIs"><div id="progress-fill"></div></div>
+            <div class="summary-line" id="summary-line">No file loaded</div>
+          </fieldset>
+        </aside>
+
+        <main class="stage">
+          <div class="plot-box sunken" id="plot-box">
+            <canvas id="plot"></canvas>
+            <div class="empty-state" id="empty-state">
+              <svg><use href="#i-app"/></svg>
+              <p><b>No traces loaded.</b></p>
+              <p>Drop an ImageJ / Fiji intensity CSV here,<br>or use <a href="#" data-action="open">File &rsaquo; Open</a>.</p>
+              <p><button class="xp" data-action="sample">Try the sample</button></p>
+            </div>
+          </div>
+
+          <div class="decide">
+            <fieldset class="label-group">
+              <legend>How many bleaching steps?</legend>
+              <button class="xp big" data-label="m" data-needs-data><span><u>M</u> &mdash; monomer</span><small>1 step</small></button>
+              <button class="xp big" data-label="d" data-needs-data><span><u>D</u> &mdash; dimer</span><small>2 steps</small></button>
+              <button class="xp big" data-label="d+" data-needs-data><span>D<u>+</u> &mdash; more</span><small>3+ steps</small></button>
+              <button class="xp big skip" data-action="next" data-needs-data><span>Skip</span><small>decide later</small></button>
+            </fieldset>
+            <fieldset class="trace-info">
+              <legend>Trace</legend>
+              <dl>
+                <dt>Noise &sigma;</dt><dd id="info-noise">&ndash;</dd>
+                <dt>TV weight</dt><dd id="info-weight">&ndash;</dd>
+                <dt>Frames</dt><dd id="info-n">&ndash;</dd>
+                <dt>Saved as</dt><dd id="info-label">&ndash;</dd>
+              </dl>
+            </fieldset>
+          </div>
+        </main>
+      </div>
+
+      <footer class="status-bar">
+        <div class="grow" id="status-msg">Ready</div>
+        <div id="status-pos">&nbsp;</div>
+        <div id="status-file">No file</div>
+      </footer>
+    </div>
+  </section>
+
+  <!-- ===== dialogs ===== -->
+  <section class="window dialog" id="dlg-options" hidden data-title="Filter Options">
+    <div class="title-bar">
+      <div class="title-text">Filter Options</div>
+      <div class="title-buttons"><button class="close" data-close aria-label="Close"></button></div>
+    </div>
+    <div class="window-body dialog-body">
+      <form id="options-form">
+        <fieldset>
+          <legend>Total variation denoising</legend>
+          <p class="hint">weight = max(multiplier &times; noise &sigma;, minimum)</p>
+          <label class="row">Multiplier: <input type="number" name="mult" step="0.1" min="0.1"></label>
+          <label class="row">Minimum weight: <input type="number" name="minWeight" step="0.5" min="0"></label>
+          <label class="row">Max iterations: <input type="number" name="maxIter" step="50" min="10" max="20000"></label>
+        </fieldset>
+        <p class="hint">Defaults match the original Python script (1.5, 1.0, 200). Changing them only affects new labels; weights already saved stay as they were.</p>
+        <div class="dialog-buttons">
+          <button type="button" class="xp" data-action="options-defaults">Defaults</button>
+          <span class="spacer"></span>
+          <button type="submit" class="xp">OK</button>
+          <button type="button" class="xp" data-close>Cancel</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="window dialog" id="dlg-shortcuts" hidden data-title="Keyboard Shortcuts">
+    <div class="title-bar">
+      <svg class="icon"><use href="#i-help"/></svg>
+      <div class="title-text">Keyboard Shortcuts</div>
+      <div class="title-buttons"><button class="close" data-close aria-label="Close"></button></div>
+    </div>
+    <div class="window-body dialog-body help-text">
+      <table class="keys">
+        <tr><td><kbd>M</kbd></td><td>monomer (one bleaching step)</td></tr>
+        <tr><td><kbd>D</kbd></td><td>dimer (two steps)</td></tr>
+        <tr><td><kbd>+</kbd> or <kbd>3</kbd></td><td>more than two steps</td></tr>
+        <tr><td><kbd>&larr;</kbd> <kbd>&rarr;</kbd></td><td>previous / next ROI</td></tr>
+        <tr><td><kbd>N</kbd></td><td>jump to the next unlabeled ROI</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd></td><td>undo the last label</td></tr>
+        <tr><td><kbd>R</kbd></td><td>show / hide the raw trace</td></tr>
+        <tr><td><kbd>Z</kbd></td><td>reset zoom</td></tr>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>export labels CSV</td></tr>
+      </table>
+      <p>Drag across the plot to zoom into a range of frames. Double-click to zoom back out.</p>
+      <p>Labels are kept in this browser while you work, so closing the tab is safe. Export the CSV to keep them for good.</p>
+      <div class="dialog-buttons"><span class="spacer"></span><button class="xp" data-close>OK</button></div>
+    </div>
+  </section>
+
+  <section class="window dialog" id="dlg-about" hidden data-title="About">
+    <div class="title-bar">
+      <div class="title-text">About Tau Step Counter</div>
+      <div class="title-buttons"><button class="close" data-close aria-label="Close"></button></div>
+    </div>
+    <div class="window-body dialog-body about">
+      <div class="about-head">
+        <svg><use href="#i-app"/></svg>
+        <div>
+          <b>Tau Step Counter</b><br>
+          Version 2.0<br>
+          Free software, MIT license.
+        </div>
+      </div>
+      <hr>
+      <p>Counts photobleaching steps in single-molecule fluorescence traces, to tell monomers from dimers and bigger oligomers.</p>
+      <p>Each trace is smoothed with total variation denoising (Chambolle, 2004), the same filter as <code>skimage.restoration.denoise_tv_chambolle</code>.</p>
+      <p>Everything runs on your computer. Files are never uploaded anywhere.</p>
+      <div class="dialog-buttons"><span class="spacer"></span><button class="xp" data-close>OK</button></div>
+    </div>
+  </section>
+
+  <section class="window dialog msgbox" id="dlg-msg" hidden data-title="">
+    <div class="title-bar">
+      <div class="title-text" id="msg-title">Tau Step Counter</div>
+      <div class="title-buttons"><button class="close" data-close aria-label="Close"></button></div>
+    </div>
+    <div class="window-body dialog-body">
+      <div class="msg-row">
+        <svg id="msg-icon"><use href="#i-info"/></svg>
+        <div id="msg-text"></div>
+      </div>
+      <div class="dialog-buttons center" id="msg-buttons"></div>
+    </div>
+  </section>
+</div>
+
+<div class="start-menu" id="start-menu" hidden>
+  <header><span class="avatar"><svg width="30" height="30"><use href="#i-app"/></svg></span>Tau Step Counter</header>
+  <ul>
+    <li><button data-action="open"><svg><use href="#i-open"/></svg>Open traces CSV...</button></li>
+    <li><button data-action="sample"><svg><use href="#i-sample"/></svg>Open sample data</button></li>
+    <li><button data-action="export" data-needs-data><svg><use href="#i-save"/></svg>Export labels</button></li>
+    <li><button data-action="options"><svg><use href="#i-options"/></svg>Filter options</button></li>
+    <li><button data-action="shortcuts"><svg><use href="#i-help"/></svg>Help and shortcuts</button></li>
+    <li><button data-action="readme"><svg><use href="#i-github"/></svg>Source code on GitHub</button></li>
+  </ul>
+  <footer><button class="xp" data-action="about">About...</button></footer>
+</div>
+
+<div class="balloon" id="balloon" hidden><b id="balloon-title"></b><span id="balloon-text"></span></div>
+
+<div class="taskbar">
+  <button class="start-button" id="start-button"><svg><use href="#i-flag"/></svg>start</button>
+  <div class="task-buttons" id="task-buttons">
+    <button class="task-button active" data-action="toggle-main"><svg><use href="#i-app"/></svg><span id="task-title">Tau Step Counter</span></button>
+  </div>
+  <div class="tray">
+    <svg><use href="#i-flag"/></svg>
+    <span id="clock">12:00</span>
+  </div>
+</div>
+
+<input type="file" id="file-traces" accept=".csv,.txt,.tsv,.xls,text/csv" hidden>
+<input type="file" id="file-labels" accept=".csv,text/csv" hidden>
+
+<script src="js/signal.js"></script>
+<script src="js/csv.js"></script>
+<script src="js/plot.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

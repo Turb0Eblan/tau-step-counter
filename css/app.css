@@ -1,0 +1,167 @@
+/* Layout of the app itself, on top of luna.css */
+
+.main-window {
+  left: 96px;
+  top: 14px;
+  right: 18px;
+  bottom: 14px;
+  min-width: 0;
+}
+.main-window.maximized {
+  left: 0 !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 0;
+}
+.main-window.maximized .title-bar { border-radius: 0; }
+
+.workspace {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 6px;
+  padding: 6px;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+.side .listview { flex: 1; }
+.listview td.lbl-m   { color: #006400; font-weight: bold; }
+.listview td.lbl-d   { color: #0046d5; font-weight: bold; }
+.listview td.lbl-dp  { color: #b4005a; font-weight: bold; }
+.listview td.lbl-x   { color: #808080; font-style: italic; }
+.listview tr.current td { color: #fff; }
+
+.summary { display: flex; flex-direction: column; gap: 6px; }
+.summary-line { color: #444; }
+.bar-row { display: grid; grid-template-columns: 24px 1fr 52px; align-items: center; gap: 4px; }
+.bar-row .bar { height: 10px; background: #fff; border: 1px solid #a5a28f; }
+.bar-row .bar i { display: block; height: 100%; }
+.bar-row .n { text-align: right; font-variant-numeric: tabular-nums; }
+.bar-m i  { background: linear-gradient(#7dd87d, #2a9a2a); }
+.bar-d i  { background: linear-gradient(#80aaf5, #2457d1); }
+.bar-dp i { background: linear-gradient(#f08ac0, #b4005a); }
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.plot-box {
+  position: relative;
+  flex: 1;
+  min-height: 180px;
+}
+.plot-box canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+.plot-box.dragover { outline: 2px dashed var(--select); outline-offset: -6px; }
+
+.empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #444;
+  background: #fff;
+}
+.empty-state svg { width: 48px; height: 48px; margin-bottom: 6px; }
+.empty-state p { margin: 3px 0; }
+.empty-state a { color: #0033cc; }
+.empty-state[hidden] { display: none; }
+
+.decide {
+  display: grid;
+  grid-template-columns: 1fr 190px;
+  gap: 6px;
+}
+.label-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.label-group button.big {
+  flex: 1 1 110px;
+  min-height: 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+.label-group button.big small { font-weight: normal; color: #555; }
+.label-group button.big:disabled small { color: inherit; }
+.label-group button.big.chosen {
+  background: linear-gradient(#fff4cc, #ffe08a 86%, #f2c444);
+}
+.label-group .skip { font-weight: normal !important; }
+
+.trace-info dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 8px;
+  margin: 0;
+}
+.trace-info dt { color: #444; }
+.trace-info dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------- dialogs ---------- */
+
+.dialog { width: 340px; z-index: 50; }
+.dialog-body { padding: 10px 11px 11px; gap: 8px; }
+.dialog .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 4px 0;
+}
+.dialog .row input { width: 80px; }
+.hint { color: #444; margin: 0 0 4px; }
+.dialog-buttons { display: flex; gap: 6px; margin-top: 4px; }
+.dialog-buttons.center { justify-content: center; }
+.dialog-buttons .spacer { flex: 1; }
+
+.keys { border-collapse: collapse; margin-bottom: 8px; }
+.keys td { padding: 2px 8px 2px 0; vertical-align: top; }
+.keys td:first-child { white-space: nowrap; }
+
+.about-head { display: flex; gap: 10px; align-items: center; }
+.about-head svg { width: 40px; height: 40px; }
+.about hr { border: 0; border-top: 1px solid #aca899; border-bottom: 1px solid #fff; margin: 8px 0; width: 100%; }
+.about p { margin: 0 0 6px; }
+.about code { font: 11px "Lucida Console", Consolas, monospace; }
+
+.msgbox { width: 360px; z-index: 60; }
+.msg-row { display: flex; gap: 12px; align-items: flex-start; padding: 6px 4px 8px; }
+.msg-row svg { width: 32px; height: 32px; flex: 0 0 32px; }
+.msg-row div { padding-top: 2px; user-select: text; }
+
+/* ---------- small screens ---------- */
+
+@media (max-width: 760px) {
+  .desktop-icons { display: none; }
+  .main-window { left: 0; right: 0; top: 0; bottom: 0; border-radius: 0; }
+  .main-window .title-bar { border-radius: 0; }
+  .workspace { grid-template-columns: 1fr; grid-template-rows: 1fr 150px; overflow: auto; }
+  .side { order: 2; }
+  .decide { grid-template-columns: 1fr; }
+  .trace-info { display: none; }
+  .toolbar .tool { font-size: 0; padding: 2px; }
+  .task-button { width: 120px; }
+  .dialog, .msgbox { width: calc(100vw - 32px); }
+}
